@@ -1,69 +1,53 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-author: NunoR
-date: "1/23/2020"
-output: 
-  html_document:
-    keep_md: true
----
-
-
-## Loading and preprocessing the data
-###### ########################################################################################
-###### Step 1 - Loading and preprocessing the data
-###### Show any code that is needed to
-###### 1. Load the data (i.e. `read.csv()`)
-###### 2. Process/transform the data (if necessary) into a format suitable for your analysis
-###### assume here that we are loading the activity file from local env and not from a repo
-###### ########################################################################################
-```{r}
+# ########################################################################################
+# Step 1 - Loading and preprocessing the data
+# Show any code that is needed to
+# 1. Load the data (i.e. `read.csv()`)
+# 2. Process/transform the data (if necessary) into a format suitable for your analysis
+# assume here that we are loading the activity file from local env and not from a repo
+# ########################################################################################
 iot_tracking_activity <- read.csv("activity.csv", sep = ",")
-```
 
-###### # NOTE: there are a lot of NAs that need to be removed or filled with default values
-###### # NOTE: date is a factor with 61 levels
-###### # NOTE: interval starts at 0 and increments by 5 minutes for each observation
-```{r}
+# NOTE: there are a lot of NAs that need to be removed or filled with default values
+# NOTE: date is a factor with 61 levels
+# NOTE: interval starts at 0 and increments by 5 minutes for each observation
+
 names(iot_tracking_activity) # ==> column names
 str(iot_tracking_activity) # ==> data
 
 head(iot_tracking_activity[
   which(!is.na(
     iot_tracking_activity$steps)), ])
-```
 
-###### # Sample / head
-###### # steps       date interval
-###### # 289     0 2012-10-02        0
-###### # 290     0 2012-10-02        5
-###### # 291     0 2012-10-02       10
-###### # 292     0 2012-10-02       15
-###### # 293     0 2012-10-02       20
-###### # 294     0 2012-10-02       25
+# Sample / head
+# steps       date interval
+# 289     0 2012-10-02        0
+# 290     0 2012-10-02        5
+# 291     0 2012-10-02       10
+# 292     0 2012-10-02       15
+# 293     0 2012-10-02       20
+# 294     0 2012-10-02       25
 
 
-## What is mean total number of steps taken per day?
-###### ##########################################################################################
-###### # Step 2 - What is the mean total number of steps taken per day?
-###### # For this part of the assignment, you can ignore the missing values in the dataset.
-###### # data wrangling cheat sheet:
-###### # https://rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf
-###### # ########################################################################################
-```{r}
+
+##########################################################################################
+# Step 2 - What is the mean total number of steps taken per day?
+# For this part of the assignment, you can ignore the missing values in the dataset.
+# data wrangling cheat sheet:
+# https://rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf
+# ########################################################################################
 walking_steps_day_2_day <- aggregate(steps ~ date, 
                                      iot_tracking_activity, 
                                      sum)
 
 walking_steps_day_2_day_mean <- mean(walking_steps_day_2_day$steps)
 paste0("The total mean number of steps per day is: ", walking_steps_day_2_day_mean)
-```
 
-###### # ########################################################################################
-###### # Step 3 - Calculate the total number of steps taken per day
-###### # Make a histogram of the total number of steps taken each day
-###### # Calculate and report the mean and median of the total number of steps taken per day
-###### # ########################################################################################
-```{r}
+# ########################################################################################
+# Step 3 - Calculate the total number of steps taken per day
+# Make a histogram of the total number of steps taken each day
+# Calculate and report the mean and median of the total number of steps taken per day
+# ########################################################################################
+
 hist(walking_steps_day_2_day$steps, 
      main = "Total Daily Steps (with mean)", 
      xlab="Steps",
@@ -92,18 +76,15 @@ abline(v = walking_steps_day_2_day_median,
        col="red", 
        lwd=1, 
        lty=2)
-```
 
 
-## What is the average daily activity pattern?
-###### # ########################################################################################
-###### # Step 4 - What is the average daily activity pattern?
-###### # Make a time series plot (i.e. type = "l" of the 5-minute interval (x-axis) and the 
-###### # average number of steps taken, averaged across all days (y-axis)
-###### # Which 5-minute interval, on average across all the days in the dataset, contains the 
-###### # maximum number of steps?
-###### # ######################################################################################## 
-```{r}
+# ########################################################################################
+# Step 4 - What is the average daily activity pattern?
+# Make a time series plot (i.e. type = "l" of the 5-minute interval (x-axis) and the 
+# average number of steps taken, averaged across all days (y-axis)
+# Which 5-minute interval, on average across all the days in the dataset, contains the 
+# maximum number of steps?
+# ######################################################################################## 
 data_gathered_by_interval <- aggregate(steps ~ interval, 
                                       iot_tracking_activity, 
                                       mean)
@@ -119,32 +100,28 @@ max_data_gathered_by_interval <- data_gathered_by_interval[ which.max(
                                                               data_gathered_by_interval$steps),
                                                             1]
 paste0("MaxIum number of steps per interval since data started collecting: ", max_data_gathered_by_interval)
-```
 
+# ########################################################################################
+# Step 5 - Imputing missing values
+# Note that there are a number of days/intervals where there are missing values 
+# (coded as NA). The presence of missing days may introduce bias into some calculations or 
+# summaries of the data.
+#
+# 1) Calculate and report the total number of missing values in the dataset (i.e. the 
+#    total number of rows with NAs)
+# 2) Devise a strategy for filling in all of the missing values in the dataset. 
+#    The strategy does not need to be sophisticated. For example, you could use the 
+#    mean/median for that day, or the mean for that 5-minute interval, etc.
+# 3) Create a new dataset that is equal to the original dataset but with the missing data 
+#    filled in. 
+# 4) Make a histogram of the total number of steps taken each day and Calculate and report 
+#    the mean and median total number of steps taken per day. 
+#    
+#    - Do these values differ from the estimates from the first part of the assignment? 
+#    - What is the impact of imputing missing data on the estimates of the total daily 
+#      number of steps?
+# ########################################################################################
 
-## Imputing missing values
-###### # ########################################################################################
-###### # Step 5 - Imputing missing values
-###### # Note that there are a number of days/intervals where there are missing values 
-###### # (coded as NA). The presence of missing days may introduce bias into some calculations or 
-###### # summaries of the data.
-###### #
-###### # 1) Calculate and report the total number of missing values in the dataset (i.e. the 
-###### #    total number of rows with NAs)
-###### # 2) Devise a strategy for filling in all of the missing values in the dataset. 
-###### #    The strategy does not need to be sophisticated. For example, you could use the 
-###### #    mean/median for that day, or the mean for that 5-minute interval, etc.
-###### # 3) Create a new dataset that is equal to the original dataset but with the missing data 
-###### #    filled in. 
-###### # 4) Make a histogram of the total number of steps taken each day and Calculate and report 
-###### #    the mean and median total number of steps taken per day. 
-###### #    
-###### #    - Do these values differ from the estimates from the first part of the assignment? 
-###### #    - What is the impact of imputing missing data on the estimates of the total daily 
-###### #      number of steps?
-###### # ########################################################################################
-
-```{r}
 data_is_na <- sum(!complete.cases(iot_tracking_activity))
 
 paste0("There are ",data_is_na," NA values")
@@ -202,22 +179,18 @@ real_delta <- sum(walking_steps_day_2_day_new$steps) -
               sum(walking_steps_day_2_day$steps)
 
 paste0("After enriching the data, the delta between the two analysis is: ", real_delta)
-```                    
-
-
-###### ## Are there differences in activity patterns between weekdays and weekends?
-###### # ########################################################################################
-###### # Step 6 - Are there differences in activity patterns between weekdays and weekends?
-###### # For this part the weekdays() function may be of some help here. Use the dataset with the 
-###### # filled-in missing values for this part.
-###### #
-###### # 1) Create a new factor variable in the dataset with two levels – “weekday” and “weekend” 
-###### #    indicating whether a given date is a weekday or weekend day.
-###### # 2) Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute 
-###### #    interval (x-axis) and the average number of steps taken, averaged across all weekday
-###### #    days or weekend days (y-axis).
-###### # ########################################################################################
-```{r}
+                    
+# ########################################################################################
+# Step 6 - Are there differences in activity patterns between weekdays and weekends?
+# For this part the weekdays() function may be of some help here. Use the dataset with the 
+# filled-in missing values for this part.
+#
+# 1) Create a new factor variable in the dataset with two levels – “weekday” and “weekend” 
+#    indicating whether a given date is a weekday or weekend day.
+# 2) Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute 
+#    interval (x-axis) and the average number of steps taken, averaged across all weekday
+#    days or weekend days (y-axis).
+# ########################################################################################
 wk <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday" )
 
 enriched_data$wkday = as.factor(
@@ -230,8 +203,7 @@ enriched_data$wkday = as.factor(
                         "Weekday", 
                         "Weekend"))
 
-# NOTE: jsut for debudding purposes
-# paste0("this is enriched", enriched_data)
+paste0("this is enriched", enriched_data)
 
 walking_steps_enriched_mean <- aggregate(steps ~ interval + wkday, 
                                          enriched_data, 
@@ -253,4 +225,4 @@ xyplot(enriched_data$steps ~ enriched_data$interval | enriched_data$wkday,
        scales=list(cex=0.5),
        layout=c(1, 2),
        type="l") 
-```
+
